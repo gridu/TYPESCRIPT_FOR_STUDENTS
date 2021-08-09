@@ -116,12 +116,12 @@ const handleError = (error) => {
 
 const handleComplete = () => console.log('complete');
 
-const requestObserver = new Observer({
+const requests$ = Observable.from(requestsMock);
+
+const subscription = requests$.subscribe({
   next: handleRequest,
   error: handleError,
   complete: handleComplete
 });
 
-const requests$ = Observable.from(requestsMock);
-const subscription = requests$.subscribe(requestObserver);
 subscription.unsubscribe();
