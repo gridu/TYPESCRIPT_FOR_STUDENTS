@@ -1,16 +1,57 @@
+enum HttpMethods {
+  HTTP_POST_METHOD = 'POST',
+  HTTP_GET_METHOD = 'GET'
+}
+
+enum HttpStatus {
+  HTTP_STATUS_OK = 200,
+  HTTP_STATUS_INTERNAL_SERVER_ERROR = 500
+}
+
+enum UserRoles {
+  USER = 'user',
+  ADMIN = 'admin'
+}
+
+type HttpRequest = {
+  method: HttpMethods;
+  host: string;
+  path: string;
+  body?: unknown;
+  params: unknown;
+};
+
+type UserModel = {
+  name: string;
+  age: number;
+  roles: UserRoles[],
+  createdAt: Date;
+  isDeleted: boolean;
+}
+
+interface Handlers {
+  next: (request: HttpRequest) => {},
+  error: (error: Error) => {},
+  complete: () => void
+}
+
 class Observer {
-  constructor(handlers) {
+  declare handlers: Handlers;
+  declare isUnsubscribed: boolean;
+  declare _unsubscribe: (observer: Observer) => void;
+
+  constructor(handlers: Handlers) {
     this.handlers = handlers;
     this.isUnsubscribed = false;
   }
 
-  next(value) {
+  next(value: HttpRequest) {
     if (this.handlers.next && !this.isUnsubscribed) {
       this.handlers.next(value);
     }
   }
 
-  error(error) {
+  error(error: Error) {
     if (!this.isUnsubscribed) {
       if (this.handlers.error) {
         this.handlers.error(error);
@@ -25,14 +66,12 @@ class Observer {
       if (this.handlers.complete) {
         this.handlers.complete();
       }
-
       this.unsubscribe();
     }
   }
 
   unsubscribe() {
     this.isUnsubscribed = true;
-
     if (this._unsubscribe) {
       this._unsubscribe();
     }
@@ -40,12 +79,14 @@ class Observer {
 }
 
 class Observable {
-  constructor(subscribe) {
+  declare _subscribe: (observer: Observer) => () => void;
+
+  constructor(subscribe: (observer: Observer) => () => void) {
     this._subscribe = subscribe;
   }
 
-  static from(values) {
-    return new Observable((observer) => {
+  static from(values: HttpRequest[]) {
+    return new Observable((observer: Observer) => {
       values.forEach((value) => observer.next(value));
 
       observer.complete();
@@ -56,7 +97,7 @@ class Observable {
     });
   }
 
-  subscribe(obs) {
+  subscribe(obs: Handlers) {
     const observer = new Observer(obs);
 
     observer._unsubscribe = this._subscribe(observer);
@@ -69,34 +110,28 @@ class Observable {
   }
 }
 
-const HTTP_POST_METHOD = 'POST';
-const HTTP_GET_METHOD = 'GET';
 
-const HTTP_STATUS_OK = 200;
-const HTTP_STATUS_INTERNAL_SERVER_ERROR = 500;
-
-
-const userMock = {
+const userMock: UserModel = {
   name: 'User Name',
   age: 26,
   roles: [
-    'user',
-    'admin'
+    UserRoles.USER,
+    UserRoles.ADMIN
   ],
   createdAt: new Date(),
-  isDeleated: false,
+  isDeleted: false,
 };
 
-const requestsMock = [
+const requestsMock: HttpRequest[] = [
   {
-    method: HTTP_POST_METHOD,
+    method: HttpMethods.HTTP_POST_METHOD,
     host: 'service.example',
     path: 'user',
     body: userMock,
     params: {},
   },
   {
-    method: HTTP_GET_METHOD,
+    method: HttpMethods.HTTP_GET_METHOD,
     host: 'service.example',
     path: 'user',
     params: {
@@ -105,13 +140,14 @@ const requestsMock = [
   }
 ];
 
-const handleRequest = (request) => {
+const handleRequest = (request: HttpRequest) => {
   // handling of request
-  return {status: HTTP_STATUS_OK};
+  return { status: HttpStatus.HTTP_STATUS_OK };
 };
-const handleError = (error) => {
+
+const handleError = (error: Error) => {
   // handling of error
-  return {status: HTTP_STATUS_INTERNAL_SERVER_ERROR};
+  return { status: HttpStatus.HTTP_STATUS_INTERNAL_SERVER_ERROR };
 };
 
 const handleComplete = () => console.log('complete');
