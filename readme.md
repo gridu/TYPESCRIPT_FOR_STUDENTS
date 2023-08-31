@@ -1,68 +1,16 @@
-# TypeScript Essentials Capstone Challenge
+# Pet projects based on Typescript for learning purposes
 
-Code sample consist of implementation of Observer, Observable and usage of this classes (handling requests).
-The assignment implies the coverage of the types of the entire code not only Observable & Observer but also
-request, users objects and observer handlers.
+## How to run
 
-## Acceptance criteria
-
-The code sample should be fully covered with types.
+Open the root folder of the project and read the `readme.md` file.
 
 
-## Solution
+## Projects
 
-The project implements `Observer` programming pattern. U can see class diagram below:
+### observable-core
 
-```mermaid
-classDiagram
-    class Listener {
-        <<interface>>
-        next(request)
-        error(message)
-        complete()
-    }
+CLI application that mocks Observable pattern based on http requests.
 
-    class Observer {
-        -listener
-        +unsubscribe()
-    }
-    Observer --|> Listener : implements
+### drag-and-drop-core
 
-    class Observable {
-        +from(events: Request_[]) : Observable
-        +subscribe(newListener) : Observer
-    }
-    Observer "1..*" --> "1" Observable
-    
-    class Request_ {
-
-    }
-    Observable --o Request_ : stores events
-```
-
-1. Created new typescript project (expected node version: `v20.5.1`)
-1. Added missed types
-1. Refactored some names to provide clear context
-
-
-### How to run
-
-Run with the following command from the root directory:
-
-```bash
-npx tsc && node dist/index.js
-```
-
-### Expected result
-
-```
-▶ npx tsc && node dist/index.js 
-✔️  Create new observable object
-✔️  Subscribe new listener
-✔️  New observer is created
-🟠 Trigger events from the Observable object
-📞 Call complete method from the Observer object
-✅ complete
-📞 Call unsubscribe method from the Observer object
-🛑 unsubscribed!
-```
+Web application that implements drag&drop functionality based on native DOM API. 
