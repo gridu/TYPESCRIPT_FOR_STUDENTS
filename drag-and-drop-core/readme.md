@@ -9,15 +9,17 @@
     ```shell
     npm install
     ```
-1. Run typescript watcher in a separated terminal:
+1. Run webpack development server:
     ```shell
-    npx run tsc -w
+    npm run start
     ```
-1. Start the web server in a separated terminal:
-    ```shell
-    npm start
-    ```
-1. Open the following URL in your web browser: `localhost:3000`
+1. Open the following URL in your web browser: `localhost:8080`
+
+Run the following command to build production verstion:
+    
+```shell
+npm run build
+```
 
 
 ## Activity Diagram
