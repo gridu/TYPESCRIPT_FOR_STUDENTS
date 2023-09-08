@@ -1,8 +1,6 @@
 import { UIComponent } from "./base";
 import { Autobinder } from "../decorators";
-import { Project, ProjectStatus } from "../models";
-import { NumberValidator, StringValidator, validate } from "../utils/validator";
-import { ProjectState } from "../state";
+import { ProjectService } from "../services";
 
 
 export class ProjectInputComponent extends UIComponent<HTMLDivElement, HTMLFormElement> {
@@ -18,7 +16,7 @@ export class ProjectInputComponent extends UIComponent<HTMLDivElement, HTMLFormE
     }
 
     configure(): void {
-        this._setupEvents(this.htmlElement);
+        this.htmlElement.addEventListener('submit', this._submitHandler.bind(this));
     }
 
     buildHTMLElement(): HTMLFormElement {
@@ -27,38 +25,22 @@ export class ProjectInputComponent extends UIComponent<HTMLDivElement, HTMLFormE
         return inputFormEl;
     }
 
-    private _setupEvents(element: HTMLFormElement) {
-        element.addEventListener('submit', this._submitHandler.bind(this));
-    }
-
     @Autobinder
-    private _submitHandler(event: Event) {
+    private async _submitHandler(event: Event) {
         event.preventDefault();
-        let title: string, description: string, people: number;
+        const [title, description, people] = this._getUserInput();
         try {
-            [title, description, people] = this._getUserInput();
-        } catch (error) {
+            await ProjectService.create(title, description, people);
+            this._clearForm();
+        } catch(error) {
             alert(error);
-            return;
         }
-
-        const newProject = new Project(title, description, people, ProjectStatus.ACTIVE);
-        const projectState = ProjectState.getInstance();
-        projectState.addItem(newProject);
-        this._clearForm();
     }
 
     private _getUserInput(): [string, string, number] {
         const enteredTitle = this.titleInputEl.value;
         const enteredDescription = this.descriptionInputEl.value;
         const enteredPeople = +this.peopleInputEl.value;
-
-        const validators = [
-            new StringValidator('Invalid title', enteredTitle, 1, 10),
-            new StringValidator('Invalid description', enteredDescription, 5, 100),
-            new NumberValidator('Invalid people', enteredPeople, 1, 10),
-        ]
-        validate(validators);
         return [enteredTitle, enteredDescription, enteredPeople];
     }
 

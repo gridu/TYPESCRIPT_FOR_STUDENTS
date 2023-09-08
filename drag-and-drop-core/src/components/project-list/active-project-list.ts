@@ -1,8 +1,8 @@
 import { StatefulProjectListComponent } from "./base";
 import { Autobinder } from "../../decorators";
 import { modifiedProjectStateObservableEvent } from "../../utils";
-import { ProjectState } from "../../state";
 import { Project } from "../../models";
+import { ProjectService } from "../../services";
 
 
 export class ActiveProjectListComponent extends StatefulProjectListComponent {
@@ -15,8 +15,7 @@ export class ActiveProjectListComponent extends StatefulProjectListComponent {
         modifiedProjectStateObservableEvent.addEventListener(
             (_: Project) => {
                 this.projectListEl.textContent = '';
-                const projectState = ProjectState.getInstance();
-                projectState.activeProjects.map(
+                ProjectService.activeProjects.map(
                     (project: Project) => this._addProject(project)
                 );
             }
@@ -26,10 +25,8 @@ export class ActiveProjectListComponent extends StatefulProjectListComponent {
     @Autobinder
     dropHandler(event: DragEvent): void {
         const projectId = event.dataTransfer!.getData('text');
-        const projectState = ProjectState.getInstance();
-        const project = projectState.getProjectById(projectId);
-        
-        projectState.reopenProject(project.id);
+        const project = ProjectService.getById(projectId);
+        new ProjectService(project).reopen();
         console.log('Reopened the project: ', project);
     }
 }

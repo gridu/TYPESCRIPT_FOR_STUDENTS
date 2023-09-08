@@ -2,7 +2,7 @@ import { StatefulProjectListComponent } from "./base";
 import { Autobinder } from "../../decorators";
 import { modifiedProjectStateObservableEvent } from "../../utils";
 import { Project } from "../../models";
-import { ProjectState } from "../../state";
+import { ProjectService } from "../../services";
 
 
 export class FinishedProjectListComponent extends StatefulProjectListComponent {
@@ -15,8 +15,7 @@ export class FinishedProjectListComponent extends StatefulProjectListComponent {
         modifiedProjectStateObservableEvent.addEventListener(
             (_: Project) => {
                 this.projectListEl.textContent = '';
-                const projectState = ProjectState.getInstance();
-                projectState.finishedProjects.map(
+                ProjectService.finishedProjects.map(
                     (project: Project) => this._addProject(project)
                 );
             }
@@ -26,10 +25,8 @@ export class FinishedProjectListComponent extends StatefulProjectListComponent {
     @Autobinder
     dropHandler(event: DragEvent): void {
         const projectId = event.dataTransfer!.getData('text');
-        const projectState = ProjectState.getInstance();
-        const project = projectState.getProjectById(projectId);
-
-        projectState.finishProject(project.id);
+        const project = ProjectService.getById(projectId);
+        new ProjectService(project).finish();
         console.log('Drop the project: ', project);
     }
 }

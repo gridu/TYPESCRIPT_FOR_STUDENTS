@@ -1,21 +1,20 @@
+## Class Diagram of states
+
 ```mermaid
 classDiagram
 
-ProjectState --|> State
-ProjectState --* Project : manages
-class State {
-    #items : Array
+ProjectState --|> State~T~
+ProjectState --* Project : collects
+class State~T~ {
+    #items : Array~T~
     addItem(item)
 }
 
 class ProjectState {
     instance : ProjectState$
-    activeProjects : Array~Project~
-    finishedProjects : Array~Project~
+    projects : Array~Project~
     -ProjectState()
     +getInstance()$
     +getProjectById(id : string) : Project
-    +finishProject(id : string) : Project
-    +reopenProject(id : string) : Project
 }
 ```
