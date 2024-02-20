@@ -1,9 +1,6 @@
-interface UserMockModel {
-  name: string;
-  age: number;
-  roles: string[];
-  createdAt: Date;
-  isDeleated: boolean;
+enum Roles {
+  USER = "user",
+  ADMIN = "admin",
 }
 enum HttpMethods {
   HTTP_GET_METHOD = "GET",
@@ -13,42 +10,43 @@ enum HttpStatus {
   HTTP_STATUS_OK = 200,
   HTTP_STATUS_INTERNAL_SERVER_ERROR = 500,
 }
-interface RequestMockModel {
+interface UserMockModelType {
+  name: string;
+  age: number;
+  roles: Roles[];
+  createdAt: Date;
+  isDeleated: boolean;
+}
+interface RequestMockType {
   method: HttpMethods;
   host: string;
   path: string;
-  body?: UserMockModel;
+  body?: UserMockModelType;
   params?: {
     [key: string]: string;
   };
 }
-interface handlersType {
-next: (value: RequestMockModel) => void,
-error: (error?: string) => void,
-complete: () => void
-};
-// interface ObserverType {
-//   next: () =>void;
-//   complete: () => void;
-  
-
-// }
+interface HandlersType {
+  next: (value: RequestMockType) => void;
+  error: (error?: string) => void;
+  complete: () => void;
+}
 class Observer {
-  _unsubscribe: ()=>void;
-  isUnsubscribed:boolean;
-  handlers:Observer;
-  constructor(handlers) {
+  public _unsubscribe: () => void;
+  private isUnsubscribed: boolean;
+  private handlers: HandlersType;
+  constructor(handlers: HandlersType) {
     this.handlers = handlers;
     this.isUnsubscribed = false;
   }
 
-  next(value) {
+  next(value: RequestMockType) {
     if (this.handlers.next && !this.isUnsubscribed) {
       this.handlers.next(value);
     }
   }
 
-  error(error) {
+  error(error?: string) {
     if (!this.isUnsubscribed) {
       if (this.handlers.error) {
         this.handlers.error(error);
@@ -78,14 +76,13 @@ class Observer {
 }
 
 class Observable {
-  public _subscribe;
-  // public _unsubscribe;
-  constructor(subscribe: RequestMockModel) {
+  private _subscribe;
+  constructor(subscribe) {
     this._subscribe = subscribe;
   }
 
-  static from(values) {
-    return new Observable((observer: handlersType) => {
+  static from(values: RequestMockType[]) {
+    return new Observable((observer: Observer) => {
       values.forEach((value) => observer.next(value));
 
       observer.complete();
@@ -96,7 +93,7 @@ class Observable {
     });
   }
 
-  subscribe(obs) {
+  subscribe(obs: HandlersType) {
     const observer = new Observer(obs);
 
     observer._unsubscribe = this._subscribe(observer);
@@ -109,15 +106,15 @@ class Observable {
   }
 }
 
-const userMock: UserMockModel = {
+const userMock: UserMockModelType = {
   name: "User Name",
   age: 26,
-  roles: ["user", "admin"],
+  roles: [Roles.USER, Roles.ADMIN],
   createdAt: new Date(),
   isDeleated: false,
 };
 
-const requestsMock: RequestMockModel[] = [
+const requestsMock: RequestMockType[] = [
   {
     method: HttpMethods.HTTP_GET_METHOD,
     host: "service.example",
@@ -135,14 +132,14 @@ const requestsMock: RequestMockModel[] = [
   },
 ];
 
-const handleRequest: (request: RequestMockModel) => {
+const handleRequest: (request: RequestMockType) => {
   status: HttpStatus;
-} = (request) => {
+} = (request: RequestMockType) => {
   // handling of request
   return { status: HttpStatus.HTTP_STATUS_OK };
 };
-const handleError:(error: any) => {
-    status: HttpStatus;
+const handleError: (error?: string) => {
+  status: HttpStatus;
 } = (error) => {
   // handling of error
   return { status: HttpStatus.HTTP_STATUS_INTERNAL_SERVER_ERROR };
@@ -152,7 +149,7 @@ const handleComplete = () => console.log("complete");
 
 const requests$ = Observable.from(requestsMock);
 
-const subscription  = requests$.subscribe({
+const subscription = requests$.subscribe({
   next: handleRequest,
   error: handleError,
   complete: handleComplete,
