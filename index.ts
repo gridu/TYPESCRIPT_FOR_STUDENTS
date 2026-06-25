@@ -106,20 +106,24 @@ class Observable<T> {
   }
 }
 
-enum HttpMethod {
-  Post = 'POST',
-  Get = 'GET',
-}
+const HTTP_METHOD = {
+  post: 'POST',
+  get: 'GET',
+} as const;
 
-enum HttpStatus {
-  Ok = 200,
-  InternalServerError = 500,
-}
+const HTTP_STATUS = {
+  ok: 200,
+  internalServerError: 500,
+} as const;
 
-enum UserRole {
-  User = 'user',
-  Admin = 'admin',
-}
+const USER_ROLE = {
+  user: 'user',
+  admin: 'admin',
+} as const;
+
+type HttpMethod = (typeof HTTP_METHOD)[keyof typeof HTTP_METHOD];
+type HttpStatus = (typeof HTTP_STATUS)[keyof typeof HTTP_STATUS];
+type UserRole = (typeof USER_ROLE)[keyof typeof USER_ROLE];
 
 interface User {
   name: string;
@@ -146,21 +150,21 @@ interface ApiResponse {
 const userMock: User = {
   name: 'User Name',
   age: 26,
-  roles: [UserRole.User, UserRole.Admin],
+  roles: [USER_ROLE.user, USER_ROLE.admin],
   createdAt: new Date(),
   isDeleted: false,
 };
 
 const requestsMock: ApiRequest<User>[] = [
   {
-    method: HttpMethod.Post,
+    method: HTTP_METHOD.post,
     host: 'service.example',
     path: 'user',
     body: userMock,
     params: {},
   },
   {
-    method: HttpMethod.Get,
+    method: HTTP_METHOD.get,
     host: 'service.example',
     path: 'user',
     params: {
@@ -174,7 +178,7 @@ const handleRequest = (request: ApiRequest<User>): ApiResponse => {
   console.log(request.method, request.path);
 
   return {
-    status: HttpStatus.Ok,
+    status: HTTP_STATUS.ok,
   };
 };
 
@@ -183,7 +187,7 @@ const handleError = (error: unknown): ApiResponse => {
   console.error(error);
 
   return {
-    status: HttpStatus.InternalServerError,
+    status: HTTP_STATUS.internalServerError,
   };
 };
 
