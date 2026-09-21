@@ -1,0 +1,13 @@
+{
+  "name": "typescript_for_students",
+  "version": "1.0.0",
+  "description": "TypeScript Essentials Capstone Challenge",
+  "scripts": {
+    "build": "tsc",
+    "start": "ts-node index.ts"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "ts-node": "^10.9.2"
+  }
+}
